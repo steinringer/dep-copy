@@ -1,6 +1,6 @@
 {
   "name": "dep-copy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js module to simplify install/uninstall tasks in modular web applications.",
   "main": "dep-copy.js",
   "scripts": {
