@@ -4,7 +4,7 @@
   "description": "Node.js module to simplify install/uninstall tasks in modular web applications.",
   "main": "dep-copy.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine-node tests --color"
   },
   "repository": {
     "type": "git",
@@ -21,4 +21,9 @@
   "bugs": {
     "url": "https://github.com/mcsdodo/dep-copy/issues"
   },
+  "homepage": "https://github.com/mcsdodo/dep-copy",
+  "dependencies": {
+    "fs-extra": "^0.18.2",
+    "through2": "^0.6.5"
+  }
 }

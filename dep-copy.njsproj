@@ -16,11 +16,26 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include="LICENSE" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="tests\testInputs\App\Templates\someTemplate.cshtml" />
+    <Content Include="tests\testInputs\Configuration\Packages\package-data.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="dep-copy.js" />
+    <Compile Include="tests\index.spec.js" />
+    <Compile Include="tests\testInputs\App\Packages\someController.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="tests\" />
+    <Folder Include="tests\testDeployFolder\" />
+    <Folder Include="tests\testInputs\" />
+    <Folder Include="tests\testInputs\App\" />
+    <Folder Include="tests\testInputs\App\Packages\" />
+    <Folder Include="tests\testInputs\App\Templates\" />
+    <Folder Include="tests\testInputs\Configuration\" />
+    <Folder Include="tests\testInputs\Configuration\Packages\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->

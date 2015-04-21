@@ -4,7 +4,7 @@ var fs = require('fs'),
     path = require('path'),
     through = require('through2');
 
-var Installer = function (baseDirectory, packageName, deployDir) {
+var DepCopy = function (baseDirectory, packageName, deployDir) {
     this.baseDirectory = baseDirectory;
     this.packageName = packageName;
     this.deployDir = deployDir;
@@ -12,7 +12,7 @@ var Installer = function (baseDirectory, packageName, deployDir) {
 
 };
 
-Installer.prototype.copyFiles = function () {
+DepCopy.prototype.copyFiles = function () {
     var self = this;
     return through({ objectMode: true }, function (data, enc, callback) {
         var th = this;
@@ -23,7 +23,7 @@ Installer.prototype.copyFiles = function () {
     });
 }
 
-Installer.prototype.addToIndexFile = function () {
+DepCopy.prototype.addToIndexFile = function () {
     var self = this;
     return through({ objectMode: true }, function (data, enc, callback) {
         console.log("Adding to index file: " + data.relative);
@@ -34,7 +34,7 @@ Installer.prototype.addToIndexFile = function () {
     });
 }
 
-Installer.prototype.readIndexFile = function () {
+DepCopy.prototype.readIndexFile = function () {
     var self = this;
     var content = this.getIndexFileContent(this.indexFileName);
     var dependencies = Object.keys(content);
@@ -48,7 +48,7 @@ Installer.prototype.readIndexFile = function () {
     return stream;
 }
 
-Installer.prototype.removeFromIndexFile = function () {
+DepCopy.prototype.removeFromIndexFile = function () {
     var self = this;
     
     return through({ objectMode: true }, function (data, enc, callback) {
@@ -63,7 +63,7 @@ Installer.prototype.removeFromIndexFile = function () {
     });
 }
 
-Installer.prototype.removeFile = function () {
+DepCopy.prototype.removeFile = function () {
     var self = this;
     
     return through({ objectMode: true }, function (data, enc, callback) {
@@ -78,7 +78,7 @@ Installer.prototype.removeFile = function () {
     });
 }
 
-Installer.prototype.unregisterDependency = function (indexObject, dependency) {
+DepCopy.prototype.unregisterDependency = function (indexObject, dependency) {
     var dependencyArray = indexObject[dependency];
     if (dependencyArray.length == 1 && dependencyArray[0] == this.packageName) {
         delete indexObject[dependency];
@@ -90,7 +90,7 @@ Installer.prototype.unregisterDependency = function (indexObject, dependency) {
     }
 };
 
-Installer.prototype.deploy = function (file, deployDir, callback) {
+DepCopy.prototype.deploy = function (file, deployDir, callback) {
     var sourcePath = path.join(this.baseDirectory, file);
     console.log(sourcePath);
     var destPath = path.join(deployDir, file);
@@ -102,19 +102,19 @@ Installer.prototype.deploy = function (file, deployDir, callback) {
 }
 
 //checks if file with provided name exists
-Installer.prototype.indexFileExists = function (indexFileName) {
+DepCopy.prototype.indexFileExists = function (indexFileName) {
     var indexFilePath = this.getIndexFilePath(indexFileName);
     var exists = fs.existsSync(indexFilePath);
     return exists;
 }
 
 //returns joined patha of baseDirectory and indexFile
-Installer.prototype.getIndexFilePath = function (indexFileName) {
+DepCopy.prototype.getIndexFilePath = function (indexFileName) {
     return path.join(this.deployDir, indexFileName);
 }
 
 //returns content of indexFile as parsed JSON object
-Installer.prototype.getIndexFileContent = function (indexFileName) {
+DepCopy.prototype.getIndexFileContent = function (indexFileName) {
     if (this.indexFileExists(indexFileName)) {
         var indexFilePath = this.getIndexFilePath(indexFileName);
         var fileContent = fs.readFileSync(path.resolve(indexFilePath));
@@ -130,7 +130,7 @@ Installer.prototype.getIndexFileContent = function (indexFileName) {
 }
 
 //adds new dependency to an JSON object
-Installer.prototype.registerDependency = function (indexObject, dependency) {
+DepCopy.prototype.registerDependency = function (indexObject, dependency) {
     
     if (!indexObject) indexObject = {};
     
@@ -146,7 +146,7 @@ Installer.prototype.registerDependency = function (indexObject, dependency) {
 }
 
 //saves an JSON object to indexFile
-Installer.prototype.setIndexFileContent = function (indexFileName, content, callback) {
+DepCopy.prototype.setIndexFileContent = function (indexFileName, content, callback) {
     if (!this.indexFileExists(indexFileName)) throw new Error("Index file " + indexFileName + " does not exist");
     
     var filePath = this.getIndexFilePath(indexFileName);
@@ -159,13 +159,13 @@ Installer.prototype.setIndexFileContent = function (indexFileName, content, call
 }
 
 //creates new indexFile with indexFileName
-Installer.prototype.createIndexFile = function (indexFileName) {
+DepCopy.prototype.createIndexFile = function (indexFileName) {
     var filePath = this.getIndexFilePath(indexFileName);
     fs.closeSync(fs.openSync(filePath, 'w'));
 }
 
 //main method called from the addToIndexFile function that processes streams
-Installer.prototype.addPackageDependency = function (indexFileName, dependency, callback) {
+DepCopy.prototype.addPackageDependency = function (indexFileName, dependency, callback) {
     var content = this.getIndexFileContent(indexFileName);
     if (content != null) {
         content = this.registerDependency(content, dependency);
@@ -178,4 +178,4 @@ Installer.prototype.addPackageDependency = function (indexFileName, dependency, 
 
 
 
-module.exports = Installer;
+module.exports = DepCopy;
