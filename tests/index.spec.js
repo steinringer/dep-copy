@@ -144,11 +144,15 @@ describe('dep-copy', function () {
 		beforeEach(function () {
 			var filePath = installer.getIndexFilePath(dependencyIndexFile);
 			fs.writeFileSync(filePath, '{}');
-		});
+        });
 
-		afterEach(function () {
+		var truncateFile = function() {
 			var filePath = installer.getIndexFilePath(dependencyIndexFile);
 			fs.writeFileSync(filePath, '{}');
+		};
+
+		afterEach(function () {
+			truncateFile();
 		});
 
 		it('indexFileExists should return true', function () {
@@ -212,7 +216,8 @@ describe('dep-copy', function () {
 			//Act
 			installer.setIndexFileContent(dependencyIndexFile, newContent, function() {
 				var content = installer.getIndexFileContent(dependencyIndexFile);
-				expect(content).toEqual(newContent);
+                expect(content).toEqual(newContent);
+				truncateFile();
 			});
 
 			//Assert
