@@ -68,3 +68,11 @@ Running
 gulp uninstall
 ```
 Will parse that file, remove all files copied to that directory that have only one dependency 'AppPlugin' and leave rest intact.
+
+##### Changelog:
+1.0.2 - added preserveTree flag to the constructor to disable default behaviour, when the source folder tree is preserved. Copies files directly to target directory then.
+Usage as follows:
+```
+new DepCopy(basePath, referenceName, destPath, { preserveTree: false });
+```
+
