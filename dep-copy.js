@@ -4,12 +4,20 @@ var fs = require('fs'),
     path = require('path'),
     through = require('through2');
 
-var DepCopy = function (baseDirectory, packageName, deployDir) {
+var DepCopy = function (baseDirectory, packageName, deployDir, options) {
     this.baseDirectory = baseDirectory;
     this.packageName = packageName;
     this.deployDir = deployDir;
     this.indexFileName = "dependency-index.json";
-
+    
+    this.options = {
+	    preserveTree : true
+    }
+    for (var name in options) {
+        if (options.hasOwnProperty(name)) {
+	        this.options[name] = options[name];
+        }
+    }
 };
 
 DepCopy.prototype.copyFiles = function () {
@@ -26,8 +34,9 @@ DepCopy.prototype.copyFiles = function () {
 DepCopy.prototype.addToIndexFile = function () {
     var self = this;
     return through({ objectMode: true }, function (data, enc, callback) {
-        console.log("Adding to index file: " + data.relative);
-        self.addPackageDependency(self.indexFileName, data.relative);
+	    var filePath = data.relative;
+	    console.log("Adding to index file: " + filePath);
+	    self.addPackageDependency(self.indexFileName, filePath);
         
         this.push(data);
         callback();
@@ -56,9 +65,8 @@ DepCopy.prototype.removeFromIndexFile = function () {
         var content = self.getIndexFileContent(self.indexFileName);
         self.unregisterDependency(content, data);
         self.setIndexFileContent(self.indexFileName, content, function () {
-            console.log(data);
-            th.push(data);
-            callback();
+	        callback();
+	        th.push(data);
         });
     });
 }
@@ -83,21 +91,31 @@ DepCopy.prototype.unregisterDependency = function (indexObject, dependency) {
     if (dependencyArray.length == 1 && dependencyArray[0] == this.packageName) {
         delete indexObject[dependency];
     } else {
-        var indexOf = dependencyArray.indexOf(this.packageName);
+	    var indexOf = dependencyArray.indexOf(this.packageName);
         if (indexOf > -1) {
             indexObject[dependency].splice(indexOf, 1);
         }
     }
 };
 
+DepCopy.prototype.abandonTree = function (destPath) {
+    var self = this;
+    if (self.options.preserveTree === false) {
+	    destPath = destPath.substring(destPath.lastIndexOf("/"));
+    }
+	return destPath;
+}
+
 DepCopy.prototype.deploy = function (file, deployDir, callback) {
+    var self = this;
     var sourcePath = path.join(this.baseDirectory, file);
-    console.log(sourcePath);
-    var destPath = path.join(deployDir, file);
+
+	var destFile = self.abandonTree(file);
+    var destPath = path.join(deployDir, destFile);
     fse.copy(sourcePath, destPath, function (err) {
         if (err) return console.error("ERROR", err);
         callback();
-        return console.log("Copied: " + destPath + " to: " + deployDir);
+        return console.log("Copied: " + sourcePath + " to: " + destPath);
     });
 }
 
@@ -166,6 +184,7 @@ DepCopy.prototype.createIndexFile = function (indexFileName) {
 
 //main method called from the addToIndexFile function that processes streams
 DepCopy.prototype.addPackageDependency = function (indexFileName, dependency, callback) {
+    dependency = this.abandonTree(dependency);
     var content = this.getIndexFileContent(indexFileName);
     if (content != null) {
         content = this.registerDependency(content, dependency);

@@ -1,6 +1,6 @@
 {
   "name": "dep-copy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node.js module to simplify install/uninstall tasks in modular web applications.",
   "main": "dep-copy.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/mcsdodo/dep-copy",
   "dependencies": {
     "fs-extra": "^0.18.2",
-    "through2": "^0.6.5"
+    "through2": "^2.0.0"
   },
   "devDependencies": {
     "jasmine-node": "^1.14.5"
