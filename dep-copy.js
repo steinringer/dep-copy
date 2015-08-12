@@ -13,11 +13,14 @@ var DepCopy = function (baseDirectory, packageName, deployDir, options) {
     this.options = {
 	    preserveTree : true
     }
-    for (var name in options) {
-        if (options.hasOwnProperty(name)) {
-	        this.options[name] = options[name];
+
+	if (options) {
+        for (var name in options) {
+            if (options.hasOwnProperty(name)) {
+                this.options[name] = options[name];
+            }
         }
-    }
+	}
 };
 
 DepCopy.prototype.copyFiles = function () {
@@ -65,8 +68,8 @@ DepCopy.prototype.removeFromIndexFile = function () {
         var content = self.getIndexFileContent(self.indexFileName);
         self.unregisterDependency(content, data);
         self.setIndexFileContent(self.indexFileName, content, function () {
-	        callback();
 	        th.push(data);
+	        callback();
         });
     });
 }
