@@ -21,3 +21,10 @@ gulp.task('install', function () {
 		.pipe(installer.copyFiles())
 		.pipe(installer.addToIndexFile());
 });
+
+gulp.task('uninstall', function() {
+    var installer = new Installer(basePath, packageName, deployPath);
+    installer.readIndexFile()
+		.pipe(installer.removeFromIndexFile())
+		.pipe(installer.removeFile());
+});

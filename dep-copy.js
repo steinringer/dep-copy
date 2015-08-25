@@ -54,8 +54,10 @@ DepCopy.prototype.readIndexFile = function () {
     var stream = through({ objectMode: true });
     
     dependencies.forEach(function (dependency) {
-        console.log("Reading dependency: " + dependency);
-        stream.write(dependency);
+	    if (content[dependency].length == 1 && self.packageName == content[dependency][0]) {
+            console.log("Reading dependency: " + dependency);
+            stream.write(dependency);
+	    }
     });
     return stream;
 }
