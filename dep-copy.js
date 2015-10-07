@@ -48,17 +48,18 @@ DepCopy.prototype.addToIndexFile = function () {
 
 DepCopy.prototype.readIndexFile = function () {
     var self = this;
-    var content = this.getIndexFileContent(this.indexFileName);
-    var dependencies = Object.keys(content);
-    
     var stream = through({ objectMode: true });
-    
-    dependencies.forEach(function (dependency) {
-	    if (content[dependency].length == 1 && self.packageName == content[dependency][0]) {
-            console.log("Reading dependency: " + dependency);
-            stream.write(dependency);
-	    }
-    });
+    var content = this.getIndexFileContent(this.indexFileName);
+	if (content != null) {
+        var dependencies = Object.keys(content);
+        
+        dependencies.forEach(function (dependency) {
+            if (content[dependency].length == 1 && self.packageName == content[dependency][0]) {
+                console.log("Reading dependency: " + dependency);
+                stream.write(dependency);
+            }
+        });
+	}
     return stream;
 }
 
