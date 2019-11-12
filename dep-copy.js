@@ -59,7 +59,8 @@ DepCopy.prototype.readIndexFile = function () {
                 stream.write(dependency);
             }
         });
-	}
+    }
+    stream.end();
     return stream;
 }
 
