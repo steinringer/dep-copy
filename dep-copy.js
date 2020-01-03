@@ -9,18 +9,18 @@ var DepCopy = function (baseDirectory, packageName, deployDir, options) {
     this.packageName = packageName;
     this.deployDir = deployDir;
     this.indexFileName = "dependency-index.json";
-    
+
     this.options = {
-	    preserveTree : true
+        preserveTree : true
     }
 
-	if (options) {
+    if (options) {
         for (var name in options) {
             if (options.hasOwnProperty(name)) {
                 this.options[name] = options[name];
             }
         }
-	}
+    }
 };
 
 DepCopy.prototype.copyFiles = function () {
@@ -37,10 +37,10 @@ DepCopy.prototype.copyFiles = function () {
 DepCopy.prototype.addToIndexFile = function () {
     var self = this;
     return through({ objectMode: true }, function (data, enc, callback) {
-	    var filePath = data.relative;
-	    console.log("Adding to index file: " + filePath);
-	    self.addPackageDependency(self.indexFileName, filePath);
-        
+        var filePath = data.relative;
+        console.log("Adding to index file: " + filePath);
+        self.addPackageDependency(self.indexFileName, filePath);
+
         this.push(data);
         callback();
     });
@@ -50,9 +50,9 @@ DepCopy.prototype.readIndexFile = function () {
     var self = this;
     var stream = through({ objectMode: true });
     var content = this.getIndexFileContent(this.indexFileName);
-	if (content != null) {
+    if (content != null) {
         var dependencies = Object.keys(content);
-        
+
         dependencies.forEach(function (dependency) {
             if (content[dependency].length == 1 && self.packageName == content[dependency][0]) {
                 console.log("Reading dependency: " + dependency);
@@ -66,30 +66,31 @@ DepCopy.prototype.readIndexFile = function () {
 
 DepCopy.prototype.removeFromIndexFile = function () {
     var self = this;
-    
+
     return through({ objectMode: true }, function (data, enc, callback) {
         var th = this;
         var content = self.getIndexFileContent(self.indexFileName);
         self.unregisterDependency(content, data);
         self.setIndexFileContent(self.indexFileName, content, function () {
-	        th.push(data);
-	        callback();
+            th.push(data);
+            callback();
         });
     });
 }
 
 DepCopy.prototype.removeFile = function () {
     var self = this;
-    
+
     return through({ objectMode: true }, function (data, enc, callback) {
         var filePath = path.join(self.deployDir, data.toString());
         fse.remove(filePath, function (err) {
-            if (err) return console.error(err);
-            return console.log("Deleted file: " + filePath);
+            if (err) {
+                console.error(err);
+                callback(err);
+            }
+            console.log("Deleted file: " + filePath);
+            callback(null, data);
         });
-        
-        this.push(data);
-        callback();
     });
 }
 
@@ -98,7 +99,7 @@ DepCopy.prototype.unregisterDependency = function (indexObject, dependency) {
     if (dependencyArray.length == 1 && dependencyArray[0] == this.packageName) {
         delete indexObject[dependency];
     } else {
-	    var indexOf = dependencyArray.indexOf(this.packageName);
+        var indexOf = dependencyArray.indexOf(this.packageName);
         if (indexOf > -1) {
             indexObject[dependency].splice(indexOf, 1);
         }
@@ -108,16 +109,16 @@ DepCopy.prototype.unregisterDependency = function (indexObject, dependency) {
 DepCopy.prototype.abandonTree = function (destPath) {
     var self = this;
     if (self.options.preserveTree === false) {
-	    destPath = destPath.substring(destPath.lastIndexOf("/"));
+        destPath = destPath.substring(destPath.lastIndexOf("/"));
     }
-	return destPath;
+    return destPath;
 }
 
 DepCopy.prototype.deploy = function (file, deployDir, callback) {
     var self = this;
     var sourcePath = path.join(this.baseDirectory, file);
 
-	var destFile = self.abandonTree(file);
+    var destFile = self.abandonTree(file);
     var destPath = path.join(deployDir, destFile);
     fse.copy(sourcePath, destPath, function (err) {
         if (err) return console.error("ERROR", err);
@@ -156,9 +157,9 @@ DepCopy.prototype.getIndexFileContent = function (indexFileName) {
 
 //adds new dependency to an JSON object
 DepCopy.prototype.registerDependency = function (indexObject, dependency) {
-    
+
     if (!indexObject) indexObject = {};
-    
+
     var packageDependency = indexObject[dependency];
     if (packageDependency) {
         if (packageDependency.indexOf(this.packageName) == -1)
@@ -173,7 +174,7 @@ DepCopy.prototype.registerDependency = function (indexObject, dependency) {
 //saves an JSON object to indexFile
 DepCopy.prototype.setIndexFileContent = function (indexFileName, content, callback) {
     if (!this.indexFileExists(indexFileName)) throw new Error("Index file " + indexFileName + " does not exist");
-    
+
     var filePath = this.getIndexFilePath(indexFileName);
     fs.truncateSync(filePath, 0);
     var jsonString = JSON.stringify(content, null, 4);
